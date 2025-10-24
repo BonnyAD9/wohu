@@ -8,16 +8,15 @@ use anyhow::Result;
 use pareg::Pareg;
 
 use crate::{
-    cli::Args, lyrics_output::LyricsOutput, out_fmt::OutFmt,
-    parse::parse_file, text_output::TextOutput,
+    cli::Args,
+    out_fmt::{FmtType, OutFmt},
+    parse::parse_file,
 };
 
 mod cli;
 mod data;
-mod lyrics_output;
 mod out_fmt;
 mod parse;
-mod text_output;
 
 fn main() -> ExitCode {
     match start() {
@@ -39,18 +38,24 @@ fn start() -> Result<()> {
     };
 
     match args.fmt {
-        OutFmt::Text => process_inputs(&args.input, TextOutput::new(out)),
+        FmtType::Text => process_inputs(&args.input, out_fmt::Text::new(out)),
+        FmtType::Latex => {
+            process_inputs(&args.input, out_fmt::Latex::new(out))
+        }
     }
 }
 
-fn process_inputs<O: LyricsOutput>(inputs: &[String], mut o: O) -> Result<()> {
+fn process_inputs<O: OutFmt>(inputs: &[String], mut o: O) -> Result<()> {
     o.init()?;
-    for i in inputs {
-        let s = parse_file(i)?;
+    for (i, ip) in inputs.iter().enumerate() {
+        if i != 0 {
+            o.song_space()?;
+        }
+        let s = parse_file(ip)?;
         let cfg = s.configs.get(&s.default).unwrap();
         for (i, v) in cfg.verses.iter().enumerate() {
             if i != 0 {
-                o.song_space()?;
+                o.verse_space()?;
             }
             o.write_verse(v.as_slice())?;
         }

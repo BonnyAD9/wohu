@@ -3,12 +3,12 @@ use std::path::PathBuf;
 use anyhow::Result;
 use pareg::Pareg;
 
-use crate::out_fmt::OutFmt;
+use crate::out_fmt::FmtType;
 
 #[derive(Debug, Default)]
 pub struct Args {
     pub input: Vec<String>,
-    pub fmt: OutFmt,
+    pub fmt: FmtType,
     pub output: Option<PathBuf>,
 }
 
@@ -21,9 +21,16 @@ impl Args {
                 "-o" | "--output" => res.output = Some(args.next_arg()?),
                 "-i" | "--input" => res.input.push(args.next_arg()?),
                 "-f" | "--fmt" | "--format" => res.fmt = args.next_arg()?,
-                "--text" => res.fmt = OutFmt::Text,
+                "--text" => res.fmt = FmtType::Text,
+                "--tex" | "--latex" => res.fmt = FmtType::Latex,
                 v if v.starts_with('-') => {
-                    return Err(args.err_unknown_argument().hint("Use `-i` to specify input file that starts with `-`.").into());
+                    return Err(args
+                        .err_unknown_argument()
+                        .hint(
+                            "Use `-i` to specify input file that starts \
+                                with `-`.",
+                        )
+                        .into());
                 }
                 v => res.input.push(v.to_string()),
             }
