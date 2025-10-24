@@ -31,35 +31,42 @@ fn main() -> ExitCode {
 fn start() -> Result<()> {
     let args = Args::parse(Pareg::args())?;
 
-    let out: Box<dyn Write> = if let Some(f) = args.output {
-        Box::new(BufWriter::new(File::create(f)?))
-    } else {
-        Box::new(stdout().lock())
-    };
+    let mut outputs: Vec<Box<dyn OutFmt>> = vec![];
+    for (t, o) in args.outputs {
+        let out: Box<dyn Write> = if let Some(f) = o {
+            Box::new(BufWriter::new(File::create(f)?))
+        } else {
+            Box::new(stdout().lock())
+        };
 
-    match args.fmt {
-        FmtType::Text => process_inputs(&args.input, out_fmt::Text::new(out)),
-        FmtType::Latex => {
-            process_inputs(&args.input, out_fmt::Latex::new(out))
-        }
+        let of: Box<dyn OutFmt> = match t {
+            FmtType::Text => Box::new(out_fmt::Text::new(out)),
+            FmtType::LatexSlides => Box::new(out_fmt::Latex::new(out)),
+        };
+        outputs.push(of);
     }
-}
 
-fn process_inputs<O: OutFmt>(inputs: &[String], mut o: O) -> Result<()> {
-    o.init()?;
-    for (i, ip) in inputs.iter().enumerate() {
-        if i != 0 {
-            o.song_space()?;
-        }
+    for o in &mut outputs {
+        o.init()?;
+    }
+    for (i, ip) in args.input.iter().enumerate() {
         let s = parse_file(ip)?;
-        let cfg = s.configs.get(&s.default).unwrap();
-        for (i, v) in cfg.verses.iter().enumerate() {
+        for o in &mut outputs {
             if i != 0 {
-                o.verse_space()?;
+                o.song_space()?;
             }
-            o.write_verse(v.as_slice())?;
+            let cfg = s.configs.get(&s.default).unwrap();
+            for (i, v) in cfg.verses.iter().enumerate() {
+                if i != 0 {
+                    o.verse_space()?;
+                }
+                o.write_verse(v.as_slice())?;
+            }
         }
     }
-    o.finalize()?;
+    for o in &mut outputs {
+        o.finalize()?;
+    }
+
     Ok(())
 }

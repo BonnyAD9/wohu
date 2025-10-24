@@ -25,7 +25,7 @@ impl<W: Write> OutFmt for Text<W> {
     }
 
     fn song_space(&mut self) -> anyhow::Result<()> {
-        writeln!(self.writer)?;
+        writeln!(self.writer, "\n")?;
         Ok(())
     }
 

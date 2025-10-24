@@ -4,5 +4,5 @@ use pareg::FromArg;
 pub enum FmtType {
     #[default]
     Text,
-    Latex,
+    LatexSlides,
 }

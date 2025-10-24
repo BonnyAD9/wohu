@@ -16,9 +16,10 @@ impl<W: Write> OutFmt for Latex<W> {
     fn init(&mut self) -> anyhow::Result<()> {
         writeln!(
             self.writer,
-            "\\documentclass[17pt]{{beamer}}
+            "\\documentclass[17pt,aspectratio=169]{{beamer}}
 \\usepackage{{helvet}}
 \\usepackage[czech]{{babel}}
+\\nofiles
 
 \\setbeamercolor{{background canvas}}{{bg=black}}
 \\setbeamercolor{{normal text}}{{fg=white}}
@@ -43,7 +44,7 @@ impl<W: Write> OutFmt for Latex<W> {
 \\textbf{{"
         )?;
         for l in verse {
-            writeln!(self.writer, "    {l}")?;
+            writeln!(self.writer, "    {l} \\\\")?;
         }
         writeln!(
             self.writer,
