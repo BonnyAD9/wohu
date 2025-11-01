@@ -19,7 +19,6 @@ impl<W: Write> OutFmt for Latex<W> {
             "\\documentclass[17pt,aspectratio=169]{{beamer}}
 \\usepackage{{helvet}}
 \\usepackage[czech]{{babel}}
-\\nofiles
 
 \\setbeamercolor{{background canvas}}{{bg=black}}
 \\setbeamercolor{{normal text}}{{fg=white}}
