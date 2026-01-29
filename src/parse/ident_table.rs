@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use crate::parse::{IdentId, ident::Ident};
 
@@ -51,6 +51,14 @@ impl IdentTable {
         self.tables.pop();
         if self.tables.is_empty() {
             self.new_scope();
+        }
+    }
+
+    pub fn get_name(&self, id: IdentId) -> Cow<'_, str> {
+        if let Some(id) = self.get_ident(id) {
+            Cow::Borrowed(&id.name)
+        } else {
+            format!("<{}>", id.0).into()
         }
     }
 }

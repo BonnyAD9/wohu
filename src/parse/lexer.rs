@@ -95,6 +95,7 @@ impl<I: Iterator<Item = Result<char>>> Lexer<I> {
         let tok = match c {
             ':' => Token::Colon,
             '=' => Token::Assign,
+            '+' => Token::Add,
             ',' => Token::Comma,
             '{' => Token::OpenBracket,
             '}' => Token::CloseBracket,

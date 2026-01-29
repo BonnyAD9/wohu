@@ -5,6 +5,7 @@ pub enum Token {
     Colon,  // :
     Assign, // =
     Comma,  // ,
+    Add,    // +
 
     OpenBracket,  // {
     CloseBracket, // }

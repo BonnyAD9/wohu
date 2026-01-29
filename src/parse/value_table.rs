@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::parse::IdentId;
+use anyhow::{Result, anyhow};
+
+use crate::parse::{IdentId, ident_table::IdentTable};
 
 #[derive(Debug)]
 pub struct ValueTable<T> {
@@ -26,6 +28,12 @@ impl<T> ValueTable<T> {
             }
         }
         None
+    }
+
+    pub fn try_get(&self, id: IdentId, idt: &IdentTable) -> Result<&T> {
+        self.get(id).ok_or_else(|| {
+            anyhow!("Missing declaration of `{}`", idt.get_name(id))
+        })
     }
 
     pub fn new_scope(&mut self) {

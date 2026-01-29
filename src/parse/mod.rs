@@ -1,3 +1,4 @@
+mod expr;
 mod ident;
 mod ident_id;
 mod ident_table;

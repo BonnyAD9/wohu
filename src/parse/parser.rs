@@ -1,17 +1,20 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use anyhow::{Result, bail};
 
 use crate::{
     data::{Song, SongConf},
-    parse::{IdentId, lexer::Lexer, token::Token, value_table::ValueTable},
+    parse::{
+        IdentId, expr::Expr, lexer::Lexer, token::Token,
+        value_table::ValueTable,
+    },
 };
 
 #[derive(Debug)]
 pub struct Parser<I: Iterator<Item = Result<char>>> {
     lex: Lexer<I>,
     cur: Token,
-    values: ValueTable<Arc<Vec<String>>>,
+    values: ValueTable<Expr>,
     names: HashMap<IdentId, String>,
     order: Vec<IdentId>,
 }
@@ -140,12 +143,34 @@ impl<I: Iterator<Item = Result<char>>> Parser<I> {
 
     fn parse_verse(&mut self) -> Result<()> {
         let id = self.lex.last_id();
-        self.expect_nexts([Token::Colon, Token::LineString])?;
-        let text = self.lex.last_line_string();
+        self.expect_next(Token::Colon)?;
         self.next()?;
-
-        self.values.set(id, text.into());
+        let expr = self.parse_expr()?;
+        self.values.set(id, expr);
         Ok(())
+    }
+
+    fn parse_expr(&mut self) -> Result<Expr> {
+        let mut exprs = vec![];
+        loop {
+            match self.cur {
+                Token::LineString => {
+                    exprs.push(Expr::Value(self.lex.last_line_string()));
+                }
+                Token::Ident => {
+                    exprs.push(Expr::Ident(self.lex.last_id()));
+                }
+                _ => bail!(
+                    "Expected line string or identifier but found `{:?}`.",
+                    self.cur
+                ),
+            }
+            if self.next()? != Token::Add {
+                break;
+            }
+            self.next()?;
+        }
+        Ok(Expr::Add(exprs))
     }
 
     fn parse_name(&mut self) -> Result<String> {
@@ -167,7 +192,7 @@ impl<I: Iterator<Item = Result<char>>> Parser<I> {
                 let name = &self.lex.idents.get_ident(*id).unwrap().name;
                 bail!("Missing verse text for the identifier `{name}`.");
             };
-            verses.push(v.clone())
+            verses.push(v.eval(&self.values, &self.lex.idents)?);
         }
         Ok(SongConf {
             language,
