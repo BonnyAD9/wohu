@@ -42,6 +42,7 @@ fn start() -> Result<()> {
         let of: Box<dyn OutFmt> = match t {
             FmtType::Text => Box::new(out_fmt::Text::new(out)),
             FmtType::LatexSlides => Box::new(out_fmt::Latex::new(out)),
+            FmtType::TypstSlides => Box::new(out_fmt::TypstSlides::new(out)),
         };
         outputs.push(of);
     }

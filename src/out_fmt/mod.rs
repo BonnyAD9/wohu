@@ -3,8 +3,9 @@ use anyhow::Result;
 mod fmt_type;
 mod latex;
 mod text;
+mod typst_slides;
 
-pub use self::{fmt_type::*, latex::*, text::*};
+pub use self::{fmt_type::*, latex::*, text::*, typst_slides::*};
 
 pub trait OutFmt {
     fn init(&mut self) -> Result<()>;

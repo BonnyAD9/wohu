@@ -5,4 +5,5 @@ pub enum FmtType {
     #[default]
     Text,
     LatexSlides,
+    TypstSlides,
 }

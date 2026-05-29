@@ -28,6 +28,9 @@ impl Args {
                 "--tex-slides" | "--latex-slides" => {
                     res.outputs.push((FmtType::LatexSlides, output.clone()))
                 }
+                "--typst-slides" => {
+                    res.outputs.push((FmtType::TypstSlides, output.clone()))
+                }
                 v if v.starts_with('-') => {
                     return Err(args
                         .err_unknown_argument()
