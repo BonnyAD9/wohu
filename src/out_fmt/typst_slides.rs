@@ -24,7 +24,11 @@ impl<W: Write> OutFmt for TypstSlides<W> {
     footer: context align(right, text(
         rgb(\"#181818\"), 15pt,
         counter(page).display(\"1/1\", both: true)
-    ))
+    )),
+    margin: (
+        left: 1cm,
+        right: 1cm,
+    ),
 )
 #pagebreak()"
         )?;
