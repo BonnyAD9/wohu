@@ -26,8 +26,8 @@ impl<W: Write> OutFmt for TypstSlides<W> {
         counter(page).display(\"1/1\", both: true)
     )),
     margin: (
-        left: 1cm,
-        right: 1cm,
+        left: 0.5cm,
+        right: 0.5cm,
     ),
 )
 #pagebreak()"
